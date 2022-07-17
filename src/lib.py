@@ -8,12 +8,27 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def GetGraph(N, M, seed=None):
-  #retorna o grafo de uma rede live de escala com os parâmetros N: número de elementos e M: metade do grau médio.
+  """ 
+  Args:
+      N (int): número de elementos do grafo
+      M (int): metade do grau médio do grafo
+      seed (int): seed de geração do grafo
+
+  Returns:
+      graph: grafo de uma rede livre de escala
+  """
+
   G = nx.barabasi_albert_graph(n = N, m = M, seed=seed, initial_graph = None)
   return G
 
 def FindLength(l):
-  #encontra o comprimento de uma lista
+  """"
+  Args:
+       l (list): lista a ser analisada
+
+  Returns:
+      int: comprimento da lista
+  """
   i = 0
   while True:
     try:
@@ -25,7 +40,16 @@ def FindLength(l):
   return i
 
 def GetMatrix(N, edgesLen, edges):
-  #retorna a matris de adjacencia de um grafo
+  """
+  Args:
+      N (int): número de elementos de um grafo
+      edgesLen (int): comprimento da lista edges
+      edges (list): lista de conexões 
+
+  Returns:
+      list: matrix de adjacência do grafo
+  """
+
   mtx = []
   for i in range(N):
     mtx.append([])
@@ -51,12 +75,23 @@ def GetMatrix(N, edgesLen, edges):
   return mtx
 
 def infect(element, probabilidade):
-  #realiza a infecção de mebros saudáveis da rede a cada iteração do loop onde há transmissores
+  """
+  Args:
+      element (int): elemento do grafo
+      probabilidade (float): probabilidade de um elemento contrarir uma população inicial do patogeno de um elemento transmissor a cada encontro/iteraçao do loop
+  """
+  
   temp = findConections(element)
   spread(temp, probabilidade)
 
 def findConections(element):
-  #encontra as conexões de uma determinada pessoa numa rede
+  """
+  Args:
+      element (int): elemento do grafo
+
+  Returns:
+      list: conexões desse elemento
+  """
   conections = []
   for i in range(len(matrix)):
     if matrix[element][i] == 1:
@@ -64,7 +99,11 @@ def findConections(element):
   return conections
 
 def spread(conections, probabilidade):
-  #atribui uma população minima estocasticamente para as pessoas com quem um indivíduo infectado tem conexões
+  """
+  Args:
+      conections (list): lista de conexões de um elemento do grafo
+      probabilidade (float): probabilidade de um elemento contrarir uma população inicial do patogeno de um elemento transmissor a cada encontro/iteraçao do loop
+  """
   for i in range(FindLength(conections)):
     rN =  random.randint(0, 1 / probabilidade)
     if lista[conections[i]][-1] == 0 and rN == 0:
@@ -73,7 +112,24 @@ def spread(conections, probabilidade):
         C[conections[i]] = 1
 
 def SaveData(Tmax, DT, k, minAmmount, probabilidade, N, M, pMin, pMax, seed, graphSeed, Amostragem, Decimais, file):
-  #salva os valores da simulação assim como os parâmetros utilizdos no caminho filePath
+  """Salva os dados em um arquivo .txt da simulação realizada
+
+  Args:
+      Tmax (int): tempo da simulação em segundos
+      DT (float): passo de integração
+      k (int): crescimento máximo/saturação do patógeno
+      minAmmount (int): quantidade minima para que alguem seja considerado transmissor
+      probabilidade (float): probabilidade de contagio a cada encontro
+      N (int): numero de elementos na rede
+      M (int): metade do grau medio da rede
+      pMin (float): parâmetro referente ao sistema imunológico
+      pMax (float): parâmetro referente ao sistema imunológico
+      seed (float): seed para os numero aleatórios da probabilidade de contagio
+      graphSeed (float): seed para a geração do grafo
+      Amostragem (int): amostragem para salvar os valores no arquivo .txt
+      Decimais (int): quantidade de decimais a serem salvos
+      file (str): nome do arquivo a ser salvo
+  """
   print(file)
   f = open(file, 'a')  
   for i in range(N):
@@ -87,13 +143,22 @@ def SaveData(Tmax, DT, k, minAmmount, probabilidade, N, M, pMin, pMax, seed, gra
   f.close()
 
 def CleanData(file, condition=False):
-  #limpa o arquivo de texto passado como parâmetro
+  """limpa o aqruivo passado como argumento
+
+  Args:
+      file (str): nome do arquivo
+      condition (bool, optional): Parametro para definir se executa a função ou nao. Defaults to False.
+  """
   if condition:
     f = open(file, 'w').close()
   GetSize(file)
 
 def ShowData(file):
-  #exibe gráficos para as simulações passadas como parâmetro
+  """Exibe gráficos a partir dos dados recuperados do arquivo .txt gerado pela função SaveData
+
+  Args:
+      file (str): nome do arquivo
+  """
   
   params = []
   content = []
@@ -159,7 +224,24 @@ def ShowData(file):
     #plt.show()
 
 def Simulate(Tmax=1000, DT=0.01, k=100, minAmmount=60, probabilidade=0.001, N=20, M=4, pMin=0.01, pMax=0.08, seed=10, graphSeed=10, Amostragem=10, Decimais=3, file=None):
-  #realiza a simulação e a integração numerica das equações diferenciais utilizadas
+  """Realiza a simulação com os parâmetros passados e salva os valores usando a função SaveData
+
+   Args:
+      Tmax (int): tempo da simulação em segundos
+      DT (float): passo de integração
+      k (int): crescimento máximo/saturação do patógeno
+      minAmmount (int): quantidade minima para que alguem seja considerado transmissor
+      probabilidade (float): probabilidade de contagio a cada encontro
+      N (int): numero de elementos na rede
+      M (int): metade do grau medio da rede
+      pMin (float): parâmetro referente ao sistema imunológico
+      pMax (float): parâmetro referente ao sistema imunológico
+      seed (float): seed para os numero aleatórios da probabilidade de contagio
+      graphSeed (float): seed para a geração do grafo
+      Amostragem (int): amostragem para salvar os valores no arquivo .txt
+      Decimais (int): quantidade de decimais a serem salvos
+      file (str): nome do arquivo a ser salvo
+  """
   G = GetGraph(N=N, M=M, seed=graphSeed)
   random.seed(seed)
   global lista
@@ -200,7 +282,14 @@ def Simulate(Tmax=1000, DT=0.01, k=100, minAmmount=60, probabilidade=0.001, N=20
   SaveData(Tmax, DT, k, minAmmount, probabilidade, N, M, pMin, pMax, seed, graphSeed, Amostragem, Decimais, file)
 
 def GetData(file):
-  #recupera os dados do arquivo file e os coloca na memoria para serem futuramente processados
+  """Recupera os dados de um arquivo .txt
+
+  Args:
+      file (str): nome do arquivo
+
+  Returns:
+      list: lista com os dados do arquivo
+  """
   f = open(file, 'r')
   content = f.read()
   content = content.split('-')
@@ -220,7 +309,11 @@ def GetData(file):
   return content
   
 def GetSize(file):
-  #retorna o tamanho de um arquivo
+  """Retorna o tamanho de um arquivo
+
+  Args:
+      file (str): nome do arquivo
+  """
   size = os.path.getsize(file)
   size = str(float(size)/1000000)
   print('{}: {} MB'.format(file, size[:6]))
